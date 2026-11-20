@@ -44,7 +44,8 @@ ol, li { border-color: #d2d8c4; }
 .month-grid { table-layout: fixed; width: 100%; border-collapse: collapse; border: 2px solid #596e4d; }
 .month-grid th { background: #dce8c9; font-size: .8rem; padding: .4rem .1rem; }
 .month-grid th, .month-grid td { border: 1px solid #aeb9a1; }
-.month-grid td { height: clamp(3.2rem, 11vw, 4.4rem); padding: .18rem; text-align: center; vertical-align: top; }
+.month-grid td { position: relative; height: clamp(3.2rem, 11vw, 4.4rem); padding: .18rem; text-align: center; vertical-align: top; }
+.book-badge { position: absolute; right: .12rem; bottom: .08rem; font-size: clamp(.62rem, 2.6vw, .8rem); line-height: 1; }
 .month-grid time { display: block; width: fit-content; min-width: 1.45rem; margin: 0 auto; font-size: .8rem; }
 .month-grid time[aria-current="date"] { color: #fff; background: #45643c; }
 .month-grid td[role="button"] { cursor: pointer; }

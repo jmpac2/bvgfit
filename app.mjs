@@ -3,6 +3,7 @@ import {UNIFORMS,localToday,addDays,weekday,weekDates,dateRange,parseDate} from 
 const $ = id => document.getElementById(id);
 const params = new URLSearchParams(location.search);
 const icons = {gym:'👟',class:'👔',first_dress:'🤵',civvies:'🦄'};
+const bookIcon = '📚';
 const dateLabel = (date, options) => new Intl.DateTimeFormat('en-CA', {timeZone:'UTC', ...options}).format(parseDate(date));
 const remembered = () => { try { return localStorage.getItem('bvgfit.class'); } catch { return null; } };
 const state = {classId:params.get('class') || remembered(), year:params.get('year'), date:params.get('date'), view:params.get('view')};
@@ -10,8 +11,10 @@ let catalog, year, schedule, today;
 let request = 0;
 function query(date) {
   const row = schedule.get(date);
-  return row ? {...row,covered:true,uniform:{...row.uniform,label:UNIFORMS[row.uniform.kind]}}
-    : {date,covered:false,in_session:false,notes:[],uniform:{kind:'unknown',label:UNIFORMS.unknown}};
+  if (!row) return {date,covered:false,in_session:false,notes:[],uniform:{kind:'unknown',label:UNIFORMS.unknown}};
+  // Book exchange recurs on one regular cycle day per class (never flex days or closures).
+  const bookExchange = row.day_kind === 'regular' && row.school_day === year.book_exchange?.[state.classId];
+  return {...row,covered:true,book_exchange:bookExchange,uniform:{...row.uniform,label:UNIFORMS[row.uniform.kind]}};
 }
 async function loadClass() {
   const token = ++request;
@@ -92,6 +95,16 @@ function row(day) {
   }
   outfit.append(day.uniform.label);
   content.append(outfit);
+  if (day.book_exchange) {
+    const line = document.createElement('p');
+    line.className = 'note';
+    const emoji = document.createElement('span');
+    emoji.className = 'emoji';
+    emoji.setAttribute('aria-hidden','true');
+    emoji.textContent = bookIcon;
+    line.append(emoji, 'Book exchange');
+    content.append(line);
+  }
   const notes = [...day.notes];
   if (day.day_kind === 'flex' && day.uniform.kind !== 'unknown' && day.uniform.needs_confirmation) notes.push('Check class notice');
   for (const note of notes) {
@@ -143,7 +156,7 @@ function monthGrid(start,end) {
       if (day.covered && (day.in_session || day.day_kind === 'closure' || day.notes.length)) {
         cell.tabIndex = 0;
         cell.setAttribute('role','button');
-        cell.setAttribute('aria-label', `${dateLabel(date,{weekday:'long',month:'long',day:'numeric'})}, ${day.uniform.label}`);
+        cell.setAttribute('aria-label', `${dateLabel(date,{weekday:'long',month:'long',day:'numeric'})}, ${day.uniform.label}${day.book_exchange ? ', book exchange' : ''}`);
         cell.addEventListener('mouseenter', () => showDayDetails(day, cell, false));
         cell.addEventListener('focus', () => showDayDetails(day, cell, false));
         cell.addEventListener('click', () => showDayDetails(day, cell, true));
@@ -163,6 +176,14 @@ function monthGrid(start,end) {
         emoji.title = day.uniform.label;
         emoji.textContent = icons[day.uniform.kind] || (day.uniform.kind === 'none' ? '🛑' : '❔');
         cell.append(emoji);
+      }
+      if (show && day.book_exchange) {
+        const badge = document.createElement('span');
+        badge.className = 'book-badge';
+        badge.setAttribute('aria-hidden','true');
+        badge.title = 'Book exchange';
+        badge.textContent = bookIcon;
+        cell.append(badge);
       }
     }
   }
