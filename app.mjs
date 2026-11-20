@@ -250,7 +250,23 @@ $('view').onchange = event => { state.view = event.target.value; render(); };
 $('date').onchange = event => { if (event.target.value) { state.date = clamp(event.target.value); render(); } };
 $('prev').onclick = () => move(-1);
 $('next').onclick = () => move(1);
-$('today').onclick = () => { state.date = todayInYear(); render(); };
+$('today').onclick = () => { refreshToday(); state.date = todayInYear(); render(); };
+// Keep "today" correct when the page stays open past midnight or is resumed later.
+function refreshToday() {
+  if (!year || $('app').hidden) return false;
+  const current = localToday(new Date(), year.timezone);
+  if (current === today) return false;
+  today = current;
+  return true;
+}
+function renderIfNewDay() {
+  if (!refreshToday()) return;
+  hideDayDetails();
+  render();
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) renderIfNewDay(); });
+addEventListener('pageshow', renderIfNewDay);
+setInterval(renderIfNewDay, 60_000);
 function showError() {
   $('error').textContent = 'Couldn’t load the calendar. Try refreshing.';
   $('error').hidden = false;
