@@ -18,6 +18,10 @@ The parent confirmed for **all Lower School classes** that November 11, 2026 (Re
 
 The school's printed calendar labels regular instructional days **Day 1** through **Day 8**. The sequence advances on school days, not weekends or closures. An occasional **Day 9** is a special/flex day: display Day 9 but do not extrapolate the regular gym rotation onto it. Use its specific class notice for attire; if none is confirmed, show **Check class notice**. Date-specific closures and exceptions must be checked against the school calendar before assigning a uniform.
 
+## Book exchange
+
+Each class has book exchange on one regular cycle day. The year's entry in `data/catalog.json` maps class to cycle day in `book_exchange` (2026–27: L1A Day 3, L1B Day 4, L1C Day 3). The site marks matching regular school days with 📚: a corner badge in month view and a "Book exchange" line in week view and the day details. Flex days and closures are never marked. Review the mapping each school year.
+
 ## How to maintain the data
 
 - Treat the current year's published BVG uniform guide, school calendar, and newer dated school/class notices as the source of truth. Historical guides are useful context but may be out of date.
